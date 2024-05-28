@@ -11,46 +11,6 @@ pipeline {
         string(name: 'buildcontainerVersion', defaultValue: '1.0.0.9', description: 'Version of the amlen-build-(distro) container to use to do the build')
     }
 
-  agent {
-    kubernetes {
-      label "amlen-${distro}-build-pod"
-      yaml """
-apiVersion: v1
-kind: Pod
-spec:
-  containers:
-  - name: amlen-${distro}-build
-    image: "quay.io/amlen/amlen-builder-${distro}:${buildcontainerVersion}"
-    command:
-    - cat
-    tty: true
-    resources:
-      limits:
-        memory: "4Gi"
-        cpu: "2"
-      requests:
-        memory: "4Gi"
-        cpu: "2"
-    volumeMounts:
-    - mountPath: /dev/shm
-      name: dshm
-  - name: jnlp
-    volumeMounts:
-    - name: volume-known-hosts
-      mountPath: /home/jenkins/.ssh
-  volumes:
-  - name: volume-known-hosts
-    configMap:
-      name: known-hosts
-  - name: dshm
-    emptyDir:
-      medium: Memory
-"""
-    }
-  }
-  
-
-
     stages {
         stage('Init') {
             steps {
